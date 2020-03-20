@@ -1,0 +1,7 @@
+.venv/
+.vscode/
+.pylintrc
+config
+known_hosts
+**/Environment
+**/__pycache__/
