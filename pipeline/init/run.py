@@ -2,6 +2,7 @@
 
 from os import environ
 from datetime import datetime
+import pika
 from shared.rabbitmq_conn import get_rabbitmq_conn
 from shared.db_conn import get_db_conn
 from shared.get_uuid_from_string import get_uuid
@@ -24,8 +25,16 @@ def callback(ch, method, properties, body):
                 dt = datetime.now()
                 cursor.execute(f"INSERT INTO {tablename} (uuid, progress, startedat) VALUES (%s, %s, %s)", (uuid, '{}', dt))
                 connection.commit()
+                ch.queue_declare(queue='decrypt', durable=True)
+                ch.basic_publish(
+                    exchange=environ['PIPILE_NAME'],
+                    routing_key="decrypt",
+                    body=uuid,
+                    properties=pika.BasicProperties(delivery_mode=2)
+                )
             cursor.close()
             connection.close()
+            
             ch.basic_ack(delivery_tag=method.delivery_tag)
         else:
             print("Failed")
