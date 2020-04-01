@@ -19,13 +19,6 @@ def get_db_conn():
     check_env()
     connection = False
     try:
-        message = 'Connecting to - '
-        message += environ["DB_USER"]
-        message += ':**********@'
-        message += environ["DB_HOST"]
-        message += f':{environ["DB_PORT"]}'
-        message += f'/{environ["DB_NAME"]}'
-        print(message)
         connection = psycopg2.connect(
             user=environ['DB_USER'],
             password=environ['DB_PASS'],

@@ -34,11 +34,13 @@ dag = DAG(
         start_date=days_ago(1)
     )
 
-objs = CONN.list_objects_v2(Bucket=bucket, Prefix=prefix, MaxKeys=750)
+objs = CONN.list_objects_v2(Bucket=bucket, Prefix=prefix)
 i = 1
+files_counter = 0
 while 'NextContinuationToken' in objs and isinstance(objs['NextContinuationToken'], str):
     file_list = []
     for name in objs['Contents']:
+        files_counter += 1
         file_list.append(name["Key"])
     INIT_FLOW = KubernetesPodOperator(
         dag=dag,
@@ -86,7 +88,9 @@ while 'NextContinuationToken' in objs and isinstance(objs['NextContinuationToken
     objs = CONN.list_objects_v2(
         Bucket=bucket,
         Prefix=prefix,
-        ContinuationToken=objs['NextContinuationToken'],
-        MaxKeys=750
+        ContinuationToken=objs['NextContinuationToken']
     )
     i += 1
+
+
+print(f"Number of files LISTED: {files_counter}")

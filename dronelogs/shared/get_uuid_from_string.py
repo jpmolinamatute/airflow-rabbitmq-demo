@@ -13,5 +13,5 @@ def get_uuid(message):
     return result
 
 if __name__ == "__main__":
-    result = get_uuid("000005CA-EA45-9AA2-D6BA-9A936376E459.dataLog")
-    print(result)
+    uuid = get_uuid("000005CA-EA45-9AA2-D6BA-9A936376E459.dataLog")
+    print(uuid)
