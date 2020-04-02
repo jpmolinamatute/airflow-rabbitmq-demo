@@ -2,6 +2,10 @@
 
 import re
 
+def get_file_from_key(single_file):
+    file_array = single_file.split("/")
+    index = 0 if len(file_array) == 1 else -1
+    return file_array[index]
 
 def get_uuid(message):
     pattern = "[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}"

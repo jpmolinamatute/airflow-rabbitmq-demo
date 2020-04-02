@@ -24,7 +24,7 @@ SECRET_ENV = Secret(
 )
 CONN = boto3.client('s3')
 
-bucket = 'rein-ai-data-warehouse'
+bucket = environ['AWS_BUCKET_NAME']
 prefix = 'juanpa'
 
 dag = DAG(
@@ -44,17 +44,14 @@ while 'NextContinuationToken' in objs and isinstance(objs['NextContinuationToken
         file_list.append(name["Key"])
     INIT_FLOW = KubernetesPodOperator(
         dag=dag,
-        image="344286188962.dkr.ecr.us-east-2.amazonaws.com/dronelogs:init",
+        image=f"{environ['DOCKER_REGISTRY']}/{environ['PIPILE_NAME']}:init",
         namespace='airflow',
         image_pull_policy='Always',
         name="init",
-        env_vars={
-            'AWS_DEFAULT_REGION': 'us-east-2',
-            'PIPILE_NAME': 'dronelogsbook'
-        },
         secrets=[
             SECRET_ENV
         ],
+        configmaps=["airflow-config"],
         arguments=[" ".join(file_list)],
         in_cluster=True,
         config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
@@ -65,18 +62,15 @@ while 'NextContinuationToken' in objs and isinstance(objs['NextContinuationToken
     )
     DECRYPT_FILES = KubernetesPodOperator(
         dag=dag,
-        image="344286188962.dkr.ecr.us-east-2.amazonaws.com/dronelogs:decrypt",
+        image=f"{environ['DOCKER_REGISTRY']}/{environ['PIPILE_NAME']}:decrypt",
         namespace='airflow',
         image_pull_policy='Always',
         name="decrypt",
         arguments=[" ".join(file_list)],
-        env_vars={
-            'AWS_DEFAULT_REGION': 'us-east-2',
-            'PIPILE_NAME': 'dronelogsbook'
-        },
         secrets=[
             SECRET_ENV
         ],
+        configmaps=["airflow-config"],
         in_cluster=True,
         config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
         is_delete_operator_pod=True,

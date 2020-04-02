@@ -4,12 +4,11 @@ image="$1"
 : "${image:=all}"
 push="$2"
 script_path=$(dirname "$(readlink -f "$0")")
-
-list=("init" "decrypt")
+registry="344286188962.dkr.ecr.us-east-2.amazonaws.com/dronelogs"
 
 build() {
     local localimage="$1"
-    local tag="344286188962.dkr.ecr.us-east-2.amazonaws.com/dronelogs:$localimage"
+    local tag="${registry}:${localimage}"
 
     echo "Building $localimage image"
     if ! docker build --rm -f ./"$localimage"/Dockerfile -t "$tag" .; then
@@ -20,7 +19,7 @@ build() {
 
 push() {
     local localimage="$1"
-    local tag="344286188962.dkr.ecr.us-east-2.amazonaws.com/dronelogs:$localimage"
+    local tag="${registry}:${localimage}"
     echo "Pushing $localimage image"
     if ! docker push "$tag"; then
         echo "Error: Pushing $localimage image failed" >&2
@@ -29,6 +28,16 @@ push() {
 }
 
 cd "$script_path" || exit 2
+
+list=()
+# @INFO: loop through all directories looking for Dockerfile file and then append it to list array
+for singleimage in */; do
+    # @INFO: at this point $singleimage contains a trailing / so we don't need to add an extra one for next line
+    if [[ -f ${singleimage}Dockerfile ]]; then
+        singleimage="${singleimage%/}"
+        list=("$singleimage" "${list[@]}")
+    fi
+done
 
 if [[ $image == "all" ]]; then
     for singleimage in "${list[@]}"; do
@@ -42,6 +51,9 @@ elif [[ ${list[*]} =~ $image ]]; then
     if [[ -n $push ]]; then
         push "$image"
     fi
+else
+    echo "Error: image name '${image}' doesn't exist" >&2
+    exit 2
 fi
 
 exit 0

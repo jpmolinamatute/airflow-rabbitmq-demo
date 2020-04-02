@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS dronelogsbook (
+CREATE TABLE IF NOT EXISTS dronelogs (
   uuid varchar(36) PRIMARY KEY,
   file_name varchar(100) UNIQUE,
   decrypt_status BOOLEAN,

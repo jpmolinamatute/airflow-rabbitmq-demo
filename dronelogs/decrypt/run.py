@@ -1,42 +1,14 @@
 #!/usr/bin/env python
 import sys
-from os import environ, path, rename, remove as remove_file
+from os import environ, rename
 from datetime import datetime
-import boto3
-from dronelogs.shared.get_uuid_from_string import get_uuid
+from dronelogs.shared.get_uuid_from_string import get_uuid, get_file_from_key
+from dronelogs.shared.s3_upload_download import download_file, upload_file
 from dronelogs.shared.db_conn import get_db_conn
-
-CONN = boto3.client('s3')
-
-bucket = 'rein-ai-data-warehouse'
-prefix = 'juanpa'
-
-def get_file_from_key(single_file):
-    file_array = single_file.split("/")
-    index = 0 if len(file_array) == 1 else -1
-    return file_array[index]
-
-def download_file(single_file):
-    file_downloaded = get_file_from_key(single_file)
-    valid = True
-    CONN.download_file(bucket, single_file, f'./{file_downloaded}')
-    if not path.isfile(f'./{file_downloaded}'):
-        valid = False
-    return valid
-
-def upload_file(uuid):
-    CONN.upload_file(
-        Filename=f'./{uuid}.csv',
-        Bucket='rein-ai-data-warehouse-clean',
-        Key=f'juanpa-copy/{uuid}.csv'
-    )
-    remove_file(f'./{uuid}.csv')
-    return True
 
 def decrypt(single_file, uuid):
     print(f'Decrypting {single_file}')
-    file_downloaded = get_file_from_key(single_file)
-    rename(f'./{file_downloaded}', f'./{uuid}.csv')
+    rename(single_file, f'./{uuid}.csv')
     return True
 
 def check_dependency(cursor, uuid):
@@ -66,10 +38,10 @@ def copy_files(single_file):
             dependency_met = check_dependency(cursor, uuid)
             if dependency_met is not None:
                 success = True
-                if download_file(single_file):
-                    if not decrypt(single_file, uuid) or not upload_file(uuid):
-                        success = False
-                else:
+                localfile = get_file_from_key(single_file)
+                if not download_file(environ['AWS_BUCKET_NAME'], single_file, f'./{localfile}') or\
+                not decrypt(f'./{localfile}', uuid) or\
+                not upload_file('rein-ai-data-warehouse-clean', f'juanpa-copy/{uuid}.csv', f'./{uuid}.csv'):
                     success = False
                 update_row(cursor, uuid, success)
                 connection.commit()
