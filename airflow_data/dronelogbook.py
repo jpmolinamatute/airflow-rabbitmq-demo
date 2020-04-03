@@ -34,20 +34,16 @@ dag = DAG(
     )
 
 objs = CONN.list_objects_v2(Bucket=bucket, Prefix=prefix)
+if 'Contents' not in objs or len(objs['Contents']) == 0:
+    raise Exception(f"Error: there are no files in {bucket}")
 i = 1
-
 files_counter = 0
-print(objs)
-while 'NextContinuationToken' in objs and isinstance(objs['NextContinuationToken'], str):
+
+while True:
     file_list = []
     for name in objs['Contents']:
         files_counter += 1
         file_list.append(name["Key"])
-    print('-------------------------------------------------------------------------------')
-    print('-------------------------------------------------------------------------------')
-    print(f'inside the loop {i}')
-    print('-------------------------------------------------------------------------------')
-    print('-------------------------------------------------------------------------------')
     INIT_FLOW = KubernetesPodOperator(
         dag=dag,
         image=f"{environ['DOCKER_REGISTRY']}/{environ['PIPILE_NAME']}:init",
@@ -85,6 +81,8 @@ while 'NextContinuationToken' in objs and isinstance(objs['NextContinuationToken
     )
     #pylint: disable=pointless-statement
     chain(INIT_FLOW, DECRYPT_FILES)
+    if 'NextContinuationToken' not in objs:
+        break
     objs = CONN.list_objects_v2(
         Bucket=bucket,
         Prefix=prefix,
