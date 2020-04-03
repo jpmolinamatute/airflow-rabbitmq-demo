@@ -24,8 +24,7 @@ SECRET_ENV = Secret(
 )
 CONN = boto3.client('s3')
 
-# bucket = environ['AWS_BUCKET_NAME']
-bucket = "rein-ai-data-application"
+bucket = environ['AWS_RAW_S3_BUCKET']
 prefix = 'juanpa'
 
 dag = DAG(
