@@ -38,8 +38,8 @@ if 'Contents' not in objs or len(objs['Contents']) == 0:
     raise Exception(f"Error: there are no files in {bucket}")
 i = 1
 files_counter = 0
-
-while True:
+keep_going = True
+while keep_going:
     file_list = []
     for name in objs['Contents']:
         files_counter += 1
@@ -81,14 +81,15 @@ while True:
     )
     #pylint: disable=pointless-statement
     chain(INIT_FLOW, DECRYPT_FILES)
-    if 'NextContinuationToken' not in objs:
-        break
-    objs = CONN.list_objects_v2(
-        Bucket=bucket,
-        Prefix=prefix,
-        ContinuationToken=objs['NextContinuationToken']
-    )
-    i += 1
+    if 'NextContinuationToken' in objs:
+        objs = CONN.list_objects_v2(
+            Bucket=bucket,
+            Prefix=prefix,
+            ContinuationToken=objs['NextContinuationToken']
+        )
+        i += 1
+    else:
+        keep_going = False
 
 
 print(f"Number of files LISTED: {files_counter}")
