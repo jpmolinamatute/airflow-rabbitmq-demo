@@ -37,6 +37,11 @@ dag = DAG(
 
 objs = CONN.list_objects_v2(Bucket=bucket, Prefix=prefix)
 i = 1
+print("----------------------------------------------------------")
+print("----------------------------------------------------------")
+print( objs['Contents'])
+print("----------------------------------------------------------")
+print("----------------------------------------------------------")
 files_counter = 0
 while 'NextContinuationToken' in objs and isinstance(objs['NextContinuationToken'], str):
     file_list = []
