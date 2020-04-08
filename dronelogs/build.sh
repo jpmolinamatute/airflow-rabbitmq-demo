@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
+REGISTRY="344286188962.dkr.ecr.us-east-2.amazonaws.com/dronelogs"
 image="$1"
 : "${image:=all}"
 push="$2"
-script_path=$(dirname "$(readlink -f "$0")")
-registry="344286188962.dkr.ecr.us-east-2.amazonaws.com/dronelogs"
+base_path=$(dirname "$(readlink -f "$0")")
 
 build() {
     local localimage="$1"
-    local tag="${registry}:${localimage}"
+    local tag="${REGISTRY}:${localimage}"
 
     echo "Building $localimage image"
-    if ! docker build --rm -f ./"$localimage"/Dockerfile -t "$tag" .; then
+    if ! docker build --rm -f "${base_path}/$localimage/Dockerfile" -t "$tag" .; then
         echo "Error: Building $localimage image failed" >&2
         exit 2
     fi
@@ -19,7 +19,7 @@ build() {
 
 push() {
     local localimage="$1"
-    local tag="${registry}:${localimage}"
+    local tag="${REGISTRY}:${localimage}"
     echo "Pushing $localimage image"
     if ! docker push "$tag"; then
         echo "Error: Pushing $localimage image failed" >&2
@@ -27,7 +27,7 @@ push() {
     fi
 }
 
-cd "$script_path" || exit 2
+cd "$base_path" || exit 2
 
 list=()
 # @INFO: loop through all directories looking for Dockerfile file and then append it to list array
