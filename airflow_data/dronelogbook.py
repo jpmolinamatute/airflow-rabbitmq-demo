@@ -24,7 +24,7 @@ SECRET_ENV = Secret(
 CONN = boto3.client('s3')
 WORKLOAD = int(environ['DAG_WORKLOAD'])
 bucket = environ['AWS_RAW_S3_BUCKET']
-prefix = 'juanpa'
+prefix = '/dronelogbook/dataLog'
 
 dag = DAG(
         environ['PIPILE_NAME'],
