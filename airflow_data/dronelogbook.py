@@ -22,7 +22,7 @@ SECRET_ENV = Secret(
     secret='airflow-secret'
 )
 CONN = boto3.client('s3')
-
+WORKLOAD = int(environ['DAG_WORKLOAD'])
 bucket = environ['AWS_RAW_S3_BUCKET']
 prefix = 'juanpa'
 
@@ -33,7 +33,7 @@ dag = DAG(
         start_date=days_ago(1)
     )
 
-objs = CONN.list_objects_v2(Bucket=bucket, Prefix=prefix, MaxKeys=500)
+objs = CONN.list_objects_v2(Bucket=bucket, Prefix=prefix, MaxKeys=WORKLOAD)
 if 'Contents' not in objs or len(objs['Contents']) == 0:
     raise Exception(f"Error: there are no files in {bucket}")
 i = 1
@@ -86,7 +86,7 @@ while keep_going:
             Bucket=bucket,
             Prefix=prefix,
             ContinuationToken=objs['NextContinuationToken'],
-            MaxKeys=500
+            MaxKeys=WORKLOAD
         )
         i += 1
     else:
