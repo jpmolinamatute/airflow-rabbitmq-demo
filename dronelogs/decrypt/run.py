@@ -91,13 +91,10 @@ def init(input_dict):
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        if path.isfile("/airflow/xcom/return.json"):
-            global_input = json.loads(sys.argv[1])
-            init(global_input)
-            sys.exit(0)
-        else:
-            print("Error: /airflow/xcom/return.json doesn't exists")
-            sys.exit(2)
+        global_input = json.loads(sys.argv[1])
+        # init(global_input)
+        print(environ['BATCH_START'], environ['BATCH_END'])
+        sys.exit(0)
     else:
         print("failed!")
         sys.exit(2)

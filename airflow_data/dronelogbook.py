@@ -86,6 +86,10 @@ for i in range(1, WORKLOAD):
         secrets=[
             SECRET_ENV
         ],
+        env_vars={
+            'BATCH_START': '{{ task_instance.xcom_pull(task_ids="task-1-1", key="start") }}',
+            'BATCH_END': '{{ task_instance.xcom_pull(task_ids="task-1-1", key="end") }}',
+        },
         configmaps=["airflow-config"],
         in_cluster=True,
         config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
