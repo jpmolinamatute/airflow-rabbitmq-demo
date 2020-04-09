@@ -7,7 +7,7 @@ from os import environ, path
 from datetime import datetime
 from dronelogs.shared.db_conn import get_db_conn
 from dronelogs.shared.get_uuid_from_string import get_uuid
-from dronelogs.shared.s3_upload_download import download_file
+from dronelogs.shared.s3_upload_download import download_file, upload_file
 
 def bufcount(file_name):
     f = open(file_name)
@@ -35,22 +35,16 @@ def insert_row(cursor, uuid, file_name):
     sql_str += "(uuid, file_name, started_at) VALUES (%s, %s, %s)"
     cursor.execute(sql_str, values)
 
-def init(file_name):
-    uuid = get_uuid(file_name)
-    if isinstance(uuid, str):
-        connection = get_db_conn()
-        if connection:
-            cursor = connection.cursor()
-            dependency_met = check_dependency(cursor, uuid)
-            if dependency_met is None:
-                insert_row(cursor, uuid, file_name)
-                connection.commit()
-            cursor.close()
-            connection.close()
-        else:
-            raise TypeError("Error: Connection to DB failed, most likely wrong credentials")
+def write_db(connection, uuid, file_name):
+    if connection:
+        cursor = connection.cursor()
+        dependency_met = check_dependency(cursor, uuid)
+        if dependency_met is None:
+            insert_row(cursor, uuid, file_name)
+            connection.commit()
+        cursor.close()
     else:
-        print(f"Error: wrong UUID {file_name}")
+        raise TypeError("Error: Connection to DB failed")
 
 def get_range_file(file_name, batch_number, worklaod):
 
@@ -69,47 +63,69 @@ def get_range_file(file_name, batch_number, worklaod):
 
     return batch_range
 
-def get_file_names(input_dict):
-    # bucket, key, single_file
-    index_file = f'./{input_dict["index_file"]}'
+def write_summary(starts, ends):
+    if path.isdir("/airflow/xcom"):
+        result = {
+            "start": starts,
+            "end": ends
+        }
+        with open("/airflow/xcom/return.json", mode="w") as f:
+            json.dump(result, f)
+    else:
+        raise ValueError("Error: /airflow/xcom doesn't exist")
+
+def get_index_file(input_dict):
     keep_going = True
     while keep_going:
         try:
             download_file(
                 environ['AWS_BUCKET_NAME'],
                 f'{input_dict["index_prefix"]}/{input_dict["index_file"]}',
-                index_file
+                f'./{input_dict["index_file"]}'
             )
             keep_going = False
         except:
             print("Waiting 60 seconds")
             sleep(60)
+
+def get_file_list(input_dict):
     file_range = get_range_file(
-        index_file,
+        f'./{input_dict["index_file"]}',
         int(input_dict["batch_number"]),
         int(input_dict["worklaod"])
     )
-    with open(index_file, "r") as text_file:
+    with open(f'./{input_dict["index_file"]}', "r") as text_file:
         lines = text_file.readlines()
         lines = lines[file_range[0]:file_range[1]]
-    result = {
-        "file_list": []
-    }
-    for single_line in lines:
-        result["file_list"].append(single_line.rstrip('\n'))
-        init(single_line.rstrip('\n'))
+    return {"list": lines, "starts": file_range[0], "ends": file_range[1]}
 
-    if path.isdir("/airflow/xcom"):
-        with open("/airflow/xcom/return.json", mode="w") as f:
-            json.dump(result, f)
-    else:
-        raise ValueError("Error: /airflow/xcom doesn't exist")
-
+def init(input_dict):
+    get_index_file(input_dict)
+    result = get_file_list(input_dict)
+    connection = get_db_conn()
+    sub_index_name = f'subindex-{result["starts"]}-{result["ends"]}.txt'
+    sub_index_obj = open(f'./{sub_index_name}', 'a+')
+    for single_line in result["list"]:
+        file_name = single_line.rstrip('\n')
+        uuid = get_uuid(file_name)
+        if isinstance(uuid, str):
+            write_db(connection, uuid, file_name)
+            sub_index_obj.write(f"{uuid}\n")
+        else:
+            print(f"Error: wrong UUID {file_name}")
+    connection.close()
+    sub_index_obj.close()
+    upload_file(
+        environ['AWS_BUCKET_NAME'],
+        f'{input_dict["index_prefix"]}/{sub_index_name}',
+        f'./{sub_index_name}'
+    )
+    write_summary(result["starts"], result["ends"])
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         global_input = json.loads(sys.argv[1])
-        get_file_names(global_input)
+        init(global_input)
         sys.exit(0)
     else:
         print("failed!")

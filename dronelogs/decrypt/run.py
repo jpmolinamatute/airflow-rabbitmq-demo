@@ -52,8 +52,12 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         # global_input = json.loads(sys.argv[1])
         print(sys.argv[1])
-        _id = {{ task_instance.xcom_pull() }}
-        print(_id)
+        if path.isfile("/airflow/xcom/return.json"):
+            with open("/airflow/xcom/return.json", mode="r") as f:
+                for line in f:
+                    print(line)
+        else:
+            print("Error: /airflow/xcom/return.json doesn't exists")
         # for line in sys.argv[1].split(" "):
         #     copy_files(line)
         sys.exit(0)

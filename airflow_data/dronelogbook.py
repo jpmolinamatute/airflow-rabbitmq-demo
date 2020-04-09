@@ -82,7 +82,7 @@ for i in range(1, WORKLOAD):
         image_pull_policy='Always',
         name="decrypt",
         do_xcom_push=False,
-        arguments=[ARGUMENTS],
+        # arguments=[ARGUMENTS],
         secrets=[
             SECRET_ENV
         ],
