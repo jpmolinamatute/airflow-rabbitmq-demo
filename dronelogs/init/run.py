@@ -63,11 +63,10 @@ def get_range_file(file_name, batch_number, worklaod):
 
     return batch_range
 
-def write_summary(starts, ends):
+def write_summary(sub_index_path):
     if path.isdir("/airflow/xcom"):
         result = {
-            "start": starts,
-            "end": ends
+            "sub_index_path": sub_index_path
         }
         with open("/airflow/xcom/return.json", mode="w") as f:
             json.dump(result, f)
@@ -120,7 +119,7 @@ def init(input_dict):
         f'{input_dict["index_prefix"]}/{sub_index_name}',
         f'./{sub_index_name}'
     )
-    write_summary(result["starts"], result["ends"])
+    write_summary(f'{input_dict["index_prefix"]}/{sub_index_name}')
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:

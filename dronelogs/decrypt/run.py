@@ -93,7 +93,11 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         global_input = json.loads(sys.argv[1])
         # init(global_input)
-        print(environ['BATCH_START'], environ['BATCH_END'])
+        print("================================================================")
+        print("================================================================")
+        print(environ['BATCH_FILE'])
+        print("================================================================")
+        print("================================================================")
         sys.exit(0)
     else:
         print("failed!")
