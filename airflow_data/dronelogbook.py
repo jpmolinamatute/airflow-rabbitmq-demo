@@ -66,8 +66,7 @@ for i in range(1, WORKLOAD):
         secrets=[
             SECRET_ENV
         ],
-        # do_xcom_push=True,
-        xcom_push=True,
+        do_xcom_push=True,
         configmaps=["airflow-config"],
         arguments=[ARGUMENTS],
         in_cluster=True,
@@ -82,8 +81,7 @@ for i in range(1, WORKLOAD):
         namespace='airflow',
         image_pull_policy='Always',
         name="decrypt",
-        # do_xcom_push=False,
-        xcom_push=False,
+        do_xcom_push=False,
         arguments=[ARGUMENTS],
         secrets=[
             SECRET_ENV

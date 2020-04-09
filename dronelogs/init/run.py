@@ -72,13 +72,18 @@ def get_range_file(file_name, batch_number, worklaod):
 def get_file_names(input_dict):
     # bucket, key, single_file
     index_file = f'./{input_dict["index_file"]}'
-    while download_file(
-        environ['AWS_BUCKET_NAME'],
-        f'{input_dict["index_prefix"]}/{input_dict["index_file"]}',
-        index_file
-    ):
-        print("Waiting 60 seconds")
-        sleep(60)
+    keep_going = True
+    while keep_going:
+        try:
+            download_file(
+                environ['AWS_BUCKET_NAME'],
+                f'{input_dict["index_prefix"]}/{input_dict["index_file"]}',
+                index_file
+            )
+            keep_going = False
+        except:
+            print("Waiting 60 seconds")
+            sleep(60)
     file_range = get_range_file(
         index_file,
         int(input_dict["batch_number"]),

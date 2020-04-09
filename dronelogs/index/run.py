@@ -34,8 +34,11 @@ if __name__ == "__main__":
     if len(sys.argv) > 2:
         file_prefix = sys.argv[1]
         file_name = sys.argv[2]
+        CONN.delete_object(
+            Bucket=environ['AWS_BUCKET_NAME'],
+            Key=f'{file_prefix}/{file_name}'
+        )
         create_index(file_name)
-        CONN.delete_object(environ['AWS_BUCKET_NAME'], f'{file_prefix}/{file_name}')
         upload_file(environ['AWS_BUCKET_NAME'], f'{file_prefix}/{file_name}', f'./{file_name}')
         sys.exit(0)
     else:
