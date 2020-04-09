@@ -88,7 +88,7 @@ for i in range(1, WORKLOAD):
             SECRET_ENV
         ],
         env_vars={
-            "BATCH_FILE": "{{ task_instance.xcom_pull(task_ids=init_id, key='sub_index_path') }}"
+            "BATCH_FILE": "{{ ti.xcom_pull(task_ids=init_id, key='sub_index_path') }}"
         },
         configmaps=["airflow-config"],
         in_cluster=True,
