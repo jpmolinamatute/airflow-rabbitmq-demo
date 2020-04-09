@@ -6,7 +6,7 @@ RUN set -eux;\
     apk update;\
     apk add --no-cache gcc libc-dev make postgresql-dev;\
     adduser -SD -u 999 -h $USER_HOME $USER;\
-    pip install --progress-bar off --no-cache-dir psycopg2
+    pip install --progress-bar off --no-cache-dir boto3 botocore psycopg2
 
 USER ${USER}
 RUN mkdir -p ${USER_HOME}/dronelogs/shared ${USER_HOME}/dronelogs/init

@@ -4,12 +4,11 @@ import sys
 from os import environ
 from dronelogs.shared.s3_upload_download import upload_file
 import boto3
-
+CONN = boto3.client('s3')
 def create_index(index_file_name):
-    conn = boto3.client('s3')
     bucket = environ['AWS_RAW_S3_BUCKET']
     prefix = environ['AWS_RAW_S3_PREFIX']
-    objs = conn.list_objects_v2(Bucket=bucket, Prefix=prefix)
+    objs = CONN.list_objects_v2(Bucket=bucket, Prefix=prefix)
     if 'Contents' not in objs or len(objs['Contents']) == 0:
         raise Exception(f"Error: there are no files in {bucket}")
     i = 1
@@ -21,7 +20,7 @@ def create_index(index_file_name):
             files_counter += 1
             days_file.write(f'{name["Key"]}\n')
         if 'NextContinuationToken' in objs:
-            objs = conn.list_objects_v2(
+            objs = CONN.list_objects_v2(
                 Bucket=bucket,
                 Prefix=prefix,
                 ContinuationToken=objs['NextContinuationToken']
@@ -36,6 +35,7 @@ if __name__ == "__main__":
         file_prefix = sys.argv[1]
         file_name = sys.argv[2]
         create_index(file_name)
+        CONN.delete_object(environ['AWS_BUCKET_NAME'], f'{file_prefix}/{file_name}')
         upload_file(environ['AWS_BUCKET_NAME'], f'{file_prefix}/{file_name}', f'./{file_name}')
         sys.exit(0)
     else:

@@ -47,7 +47,7 @@ INDEX = KubernetesPodOperator(
     config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
     is_delete_operator_pod=True,
     hostnetwork=False,
-    task_id=f"task-0"
+    task_id="task-0"
 )
 
 for i in range(1, WORKLOAD):
@@ -66,7 +66,8 @@ for i in range(1, WORKLOAD):
         secrets=[
             SECRET_ENV
         ],
-        do_xcom_push=True,
+        # do_xcom_push=True,
+        xcom_push=True
         configmaps=["airflow-config"],
         arguments=[ARGUMENTS],
         in_cluster=True,
@@ -81,7 +82,8 @@ for i in range(1, WORKLOAD):
         namespace='airflow',
         image_pull_policy='Always',
         name="decrypt",
-        do_xcom_push=False,
+        # do_xcom_push=False,
+        xcom_push=False,
         arguments=[ARGUMENTS],
         secrets=[
             SECRET_ENV

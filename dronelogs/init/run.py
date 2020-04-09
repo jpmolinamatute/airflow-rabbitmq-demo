@@ -2,6 +2,7 @@
 
 import sys
 import json
+from time import sleep
 from os import environ, path
 from datetime import datetime
 from dronelogs.shared.db_conn import get_db_conn
@@ -71,11 +72,13 @@ def get_range_file(file_name, batch_number, worklaod):
 def get_file_names(input_dict):
     # bucket, key, single_file
     index_file = f'./{input_dict["index_file"]}'
-    download_file(
+    while download_file(
         environ['AWS_BUCKET_NAME'],
         f'{input_dict["index_prefix"]}/{input_dict["index_file"]}',
         index_file
-    )
+    ):
+        print("Waiting 60 seconds")
+        sleep(60)
     file_range = get_range_file(
         index_file,
         int(input_dict["batch_number"]),
