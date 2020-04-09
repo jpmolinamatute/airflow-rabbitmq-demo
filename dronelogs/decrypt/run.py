@@ -50,8 +50,12 @@ def copy_files(single_file):
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        for line in sys.argv[1].split(" "):
-            copy_files(line)
+        # global_input = json.loads(sys.argv[1])
+        print(sys.argv[1])
+        _id = {{ task_instance.xcom_pull() }}
+        print(_id)
+        # for line in sys.argv[1].split(" "):
+        #     copy_files(line)
         sys.exit(0)
     else:
         print("failed!")

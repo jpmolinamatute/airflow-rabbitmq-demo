@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from os import environ, path, rename, remove as remove_file
+from os import path, remove as remove_file
 import boto3
 
 CONN = boto3.client('s3')
@@ -26,4 +26,7 @@ def upload_file(bucket, key, single_file):
         )
         remove_file(single_file)
         valid = True
+    else:
+        raise ValueError(f"Error: {single_file} doesn's exists")
+
     return valid
