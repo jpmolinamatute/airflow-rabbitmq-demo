@@ -67,7 +67,7 @@ for i in range(1, WORKLOAD):
             SECRET_ENV
         ],
         # do_xcom_push=True,
-        xcom_push=True
+        xcom_push=True,
         configmaps=["airflow-config"],
         arguments=[ARGUMENTS],
         in_cluster=True,
