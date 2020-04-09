@@ -84,9 +84,9 @@ def get_index_file(input_dict):
                 f'./{input_dict["index_file"]}'
             )
             keep_going = False
-        except:
-            print("Waiting 60 seconds")
-            sleep(60)
+        except Exception as e:
+            print("Waiting 30 seconds")
+            sleep(30)
 
 def get_file_list(input_dict):
     file_range = get_range_file(
