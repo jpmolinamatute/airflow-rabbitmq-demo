@@ -114,9 +114,12 @@ def init(input_dict):
         for single_line in result["list"]:
             file_name = single_line.rstrip("\n")
             uuid = get_uuid(file_name)
-            if isinstance(uuid, str) and not check_dependency(connection, uuid):
-                insert_row(connection, uuid, file_name)
-                sub_index_obj.write(f"{uuid}\n")
+            if isinstance(uuid, str):
+                if check_dependency(connection, uuid):
+                    print(f"UUID: {uuid} already in DB")
+                else:
+                    insert_row(connection, uuid, file_name)
+                    sub_index_obj.write(f"{uuid}\n")
             else:
                 print(f"Error: wrong UUID {file_name}")
         connection.close()

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from os import path, remove as remove_file
+from os import path, stat, remove as remove_file
 import boto3
 
 CONN = boto3.client("s3")
@@ -17,10 +17,10 @@ def download_file(bucket, key, single_file):
 def upload_file(bucket, key, single_file):
     valid = False
     if path.isfile(single_file):
-        CONN.upload_file(Filename=single_file, Bucket=bucket, Key=key)
+        if stat(single_file).st_size > 0:
+            CONN.upload_file(Filename=single_file, Bucket=bucket, Key=key)
+            valid = True
         remove_file(single_file)
-        valid = True
     else:
         raise ValueError(f"Error: {single_file} doesn's exists")
-
     return valid
