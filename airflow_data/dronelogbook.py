@@ -77,7 +77,9 @@ for i in range(1, WORKLOAD):
         do_xcom_push=False,
         arguments=[ARGUMENTS],
         secrets=[SECRET_ENV],
-        env_vars={"BATCH_FILE": "{{ ti.xcom_pull(dag_id='dronelogs', key='sub_index_path') }}"},
+        env_vars={
+            "BATCH_FILE": "{{ ti.xcom_pull(dag_id='dronelogs', task_ids='task-1-1', key='sub_index_path') }}"
+        },
         configmaps=["airflow-config"],
         in_cluster=True,
         config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
