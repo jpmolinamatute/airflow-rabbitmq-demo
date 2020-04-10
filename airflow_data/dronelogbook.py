@@ -88,4 +88,4 @@ for i in range(1, WORKLOAD):
         task_id=f"task-2-{i}",
     )
 
-    chain(DRONE_LOG_DAG, INIT_FLOW, DECRYPT_FILES)
+    chain(INDEX, INIT_FLOW, DECRYPT_FILES)
