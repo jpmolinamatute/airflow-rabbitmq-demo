@@ -15,7 +15,7 @@ DEFAULT_ARGS = {
 
 SECRET_ENV = Secret(deploy_type="env", deploy_target=None, secret="airflow-secret")
 
-WORKLOAD = int(environ["DAG_WORKLOAD"]) + 1
+WORKLOAD = int(environ["DAG_WORKLOAD"])
 
 DRONE_LOG_DAG = DAG(
     environ["PIPILE_NAME"],
@@ -48,7 +48,7 @@ for i in range(1, WORKLOAD):
             "index_file": INDEX_FILE,
             "index_prefix": INDEX_PREFIX,
             "batch_number": i,
-            "worklaod": environ["DAG_WORKLOAD"],
+            "worklaod": WORKLOAD,
         }
     )
 

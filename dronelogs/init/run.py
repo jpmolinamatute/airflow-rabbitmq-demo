@@ -46,15 +46,15 @@ def insert_row(connection, uuid, file_name):
 
 def get_range_file(file_name, batch_number, worklaod):
     count = bufcount(file_name)
-    batch_size = int(count / worklaod)
+    batch_size = int(round(count / worklaod))
     batch_range = None
 
     if batch_number == 1:
         batch_range = (0, batch_size)
-    elif batch_number <= worklaod:
+    elif batch_number < worklaod:
         batch_range = (batch_size * (batch_number - 1), batch_size * batch_number)
-    elif batch_number == worklaod:
-        batch_range = (batch_size * (batch_number - 1), count + 1)
+    # elif batch_number == worklaod:
+    #     batch_range = (batch_size * (batch_number - 1), count + 1)
     else:
         raise ValueError("Error: batch_number must be greater than 0")
 
