@@ -42,7 +42,7 @@ INDEX = KubernetesPodOperator(
     task_id="task-0",
 )
 
-for i in range(1, WORKLOAD):
+for i in range(1, WORKLOAD + 1):
     ARGUMENTS = json.dumps(
         {
             "index_file": INDEX_FILE,

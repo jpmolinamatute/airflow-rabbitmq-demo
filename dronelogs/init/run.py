@@ -53,8 +53,8 @@ def get_range_file(file_name, batch_number, worklaod):
         batch_range = (0, batch_size)
     elif batch_number < worklaod:
         batch_range = (batch_size * (batch_number - 1), batch_size * batch_number)
-    # elif batch_number == worklaod:
-    #     batch_range = (batch_size * (batch_number - 1), count + 1)
+    elif batch_number == worklaod:
+        batch_range = (batch_size * (batch_number - 1), count + 1)
     else:
         raise ValueError("Error: batch_number must be greater than 0")
 
