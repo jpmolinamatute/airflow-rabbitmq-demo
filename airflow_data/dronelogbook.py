@@ -48,7 +48,7 @@ for i in range(1, WORKLOAD):
             "index_file": INDEX_FILE,
             "index_prefix": INDEX_PREFIX,
             "batch_number": i,
-            "worklaod": WORKLOAD,
+            "worklaod": environ["DAG_WORKLOAD"],
         }
     )
 

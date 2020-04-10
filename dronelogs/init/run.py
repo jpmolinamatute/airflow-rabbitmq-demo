@@ -45,7 +45,6 @@ def insert_row(connection, uuid, file_name):
 
 
 def get_range_file(file_name, batch_number, worklaod):
-
     count = bufcount(file_name)
     batch_size = int(count / worklaod)
     batch_range = None
