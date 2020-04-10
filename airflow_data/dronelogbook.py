@@ -51,7 +51,7 @@ for i in range(1, WORKLOAD):
             "worklaod": WORKLOAD,
         }
     )
-    init_id = f"task-1-{i}"
+
     INIT_FLOW = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
         image=f"{environ['DOCKER_REGISTRY']}/{environ['PIPILE_NAME']}:init",
@@ -66,7 +66,7 @@ for i in range(1, WORKLOAD):
         config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
         is_delete_operator_pod=True,
         hostnetwork=False,
-        task_id=init_id,
+        task_id=f"task-1-{i}",
     )
     DECRYPT_FILES = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
@@ -77,9 +77,7 @@ for i in range(1, WORKLOAD):
         do_xcom_push=False,
         arguments=[ARGUMENTS],
         secrets=[SECRET_ENV],
-        env_vars={
-            "BATCH_FILE": "{{ ti.xcom_pull(task_ids=init_id, dag_id=environ['PIPILE_NAME'], key='sub_index_path') }}"
-        },
+        env_vars={"BATCH_FILE": "{{ ti.xcom_pull(key='sub_index_path') }}"},
         configmaps=["airflow-config"],
         in_cluster=True,
         config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
