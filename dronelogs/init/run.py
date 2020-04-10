@@ -102,24 +102,27 @@ def init(input_dict):
     get_index_file(input_dict)
     result = get_file_list(input_dict)
     connection = get_db_conn()
-    sub_index_name = f'subindex-{result["starts"]}-{result["ends"]}.txt'
-    sub_index_obj = open(f"./{sub_index_name}", "a+")
-    for single_line in result["list"]:
-        file_name = single_line.rstrip("\n")
-        uuid = get_uuid(file_name)
-        if isinstance(uuid, str) and check_dependency(connection, uuid):
-            insert_row(connection, uuid, file_name)
-            sub_index_obj.write(f"{uuid}\n")
-        else:
-            print(f"Error: wrong UUID {file_name}")
-    connection.close()
-    sub_index_obj.close()
-    upload_file(
-        environ["AWS_BUCKET_NAME"],
-        f'{input_dict["index_prefix"]}/{sub_index_name}',
-        f"./{sub_index_name}",
-    )
-    write_summary(f'{input_dict["index_prefix"]}/{sub_index_name}')
+    if connection:
+        sub_index_name = f'subindex-{result["starts"]}-{result["ends"]}.txt'
+        sub_index_obj = open(f"./{sub_index_name}", "a+")
+        for single_line in result["list"]:
+            file_name = single_line.rstrip("\n")
+            uuid = get_uuid(file_name)
+            if isinstance(uuid, str) and not check_dependency(connection, uuid):
+                insert_row(connection, uuid, file_name)
+                sub_index_obj.write(f"{uuid}\n")
+            else:
+                print(f"Error: wrong UUID {file_name}")
+        connection.close()
+        sub_index_obj.close()
+        upload_file(
+            environ["AWS_BUCKET_NAME"],
+            f'{input_dict["index_prefix"]}/{sub_index_name}',
+            f"./{sub_index_name}",
+        )
+        write_summary(f'{input_dict["index_prefix"]}/{sub_index_name}')
+    else:
+        raise "Error: Connection to DB failed"
 
 
 if __name__ == "__main__":
