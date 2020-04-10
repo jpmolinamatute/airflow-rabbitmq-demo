@@ -45,8 +45,8 @@ INDEX = KubernetesPodOperator(
 for i in range(1, WORKLOAD):
     ARGUMENTS = json.dumps(
         {
-            "INDEX_FILE": INDEX_FILE,
-            "INDEX_PREFIX": INDEX_PREFIX,
+            "index_file": INDEX_FILE,
+            "index_prefix": INDEX_PREFIX,
             "batch_number": i,
             "worklaod": WORKLOAD,
         }

@@ -71,19 +71,19 @@ def write_summary(sub_index_path):
         raise ValueError("Error: /airflow/xcom doesn't exist")
 
 
-def get_index_file(input_dict):
-    keep_going = True
-    while keep_going:
-        try:
-            download_file(
-                environ["AWS_BUCKET_NAME"],
-                f'{input_dict["index_prefix"]}/{input_dict["index_file"]}',
-                f'./{input_dict["index_file"]}',
-            )
-            keep_going = False
-        except Exception:
-            print("Waiting 30 seconds")
-            sleep(30)
+# def get_index_file(input_dict):
+#     keep_going = True
+#     while keep_going:
+#         try:
+#             download_file(
+#                 environ["AWS_BUCKET_NAME"],
+#                 f'{input_dict["index_prefix"]}/{input_dict["index_file"]}',
+#                 f'./{input_dict["index_file"]}',
+#             )
+#             keep_going = False
+#         except Exception:
+#             print("Waiting 30 seconds")
+#             sleep(30)
 
 
 def get_file_list(input_dict):
@@ -99,7 +99,13 @@ def get_file_list(input_dict):
 
 
 def init(input_dict):
-    get_index_file(input_dict)
+    # get_index_file(input_dict)
+    download_file(
+        environ["AWS_BUCKET_NAME"],
+        f'{input_dict["index_prefix"]}/{input_dict["index_file"]}',
+        f'./{input_dict["index_file"]}',
+    )
+
     result = get_file_list(input_dict)
     connection = get_db_conn()
     if connection:
