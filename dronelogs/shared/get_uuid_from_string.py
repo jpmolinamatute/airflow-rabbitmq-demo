@@ -13,9 +13,12 @@ def get_uuid(message):
     pattern = "[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}"
     result = False
     if isinstance(message, str):
-        result = re.search(pattern, message.upper())
-        if result:
-            result = result[0].upper()
+        if message == "empty":
+            result = "empty"
+        else:
+            result = re.search(pattern, message.upper())
+            if result:
+                result = result[0].upper()
     return result
 
 

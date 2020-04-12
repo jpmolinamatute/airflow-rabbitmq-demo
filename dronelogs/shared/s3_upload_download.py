@@ -8,8 +8,12 @@ CONN = boto3.client("s3")
 
 def download_file(bucket, key, single_file):
     valid = True
-    CONN.download_file(Bucket=bucket, Key=key, Filename=single_file)
-    if not path.isfile(single_file):
+    try:
+        CONN.download_file(Bucket=bucket, Key=key, Filename=single_file)
+        if not path.isfile(single_file):
+            valid = False
+    except:
+        print(f"Error: {key} doesn't exist in {bucket}")
         valid = False
     return valid
 
