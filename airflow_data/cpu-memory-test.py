@@ -19,7 +19,7 @@ DRONE_LOG_DAG = DAG(
 )
 
 
-for i in range(1, 101):
+for i in range(1, 20):
     MEM_TEST = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
         image="danielsantos/memorystress",
@@ -33,6 +33,7 @@ for i in range(1, 101):
         hostnetwork=False,
         task_id=f"task-1-{i}",
     )
+
     CPU_TEST = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
         image="danielsantos/cpustress",
@@ -46,5 +47,3 @@ for i in range(1, 101):
         hostnetwork=False,
         task_id=f"task-2-{i}",
     )
-
-    chain(MEM_TEST, CPU_TEST)
