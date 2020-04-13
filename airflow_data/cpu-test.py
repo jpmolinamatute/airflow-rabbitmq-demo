@@ -14,7 +14,7 @@ DRONE_LOG_DAG = DAG(
     start_date=days_ago(1),
 )
 
-for i in range(1, 21):
+for i in range(1, 30):
     CPU_TEST = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
         image=f"{environ['DOCKER_REGISTRY']}/{environ['PIPILE_NAME']}:cputest",
