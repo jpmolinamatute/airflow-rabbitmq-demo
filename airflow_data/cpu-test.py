@@ -8,21 +8,16 @@ from airflow.utils.helpers import chain
 
 
 DRONE_LOG_DAG = DAG(
-    "Airflow-Test",
-    default_args={
-        "owner": "airflow",
-        "depends_on_past": False,
-        "description": "CPU & Memory Tests",
-    },
+    "airflow-test",
+    default_args={"owner": "airflow", "depends_on_past": False, "description": "CPU Tests",},
     schedule_interval=None,  # '@once',
     start_date=days_ago(1),
 )
 
-
 for i in range(1, 21):
     CPU_TEST = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
-        image="danielsantos/cpustress",
+        image=f"{environ['DOCKER_REGISTRY']}/{environ['PIPILE_NAME']}:cputest",
         namespace="load-testing",
         image_pull_policy="Always",
         name="cpu",
@@ -31,21 +26,7 @@ for i in range(1, 21):
         config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
         is_delete_operator_pod=True,
         hostnetwork=False,
-        task_id=f"task-2-{i}",
+        task_id=f"task-{i}",
     )
 
-    MEM_TEST = KubernetesPodOperator(
-        dag=DRONE_LOG_DAG,
-        image=f"danielsantos/memorystress",
-        namespace="load-testing",
-        image_pull_policy="Always",
-        name="mem",
-        do_xcom_push=False,
-        in_cluster=True,
-        config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
-        is_delete_operator_pod=True,
-        hostnetwork=False,
-        task_id=f"task-1-{i}",
-    )
-
-    chain(CPU_TEST, MEM_TEST)
+    CPU_TEST
