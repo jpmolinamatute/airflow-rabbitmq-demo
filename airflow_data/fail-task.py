@@ -12,15 +12,15 @@ SLACK_CONN_ID = "slack"
 
 def task_fail_slack_alert(context):
     ti = context.get("task_instance")
-    task = ti.task_id
-    dag = ti.dag_id
+    task_id = ti.task_id
+    dag_id = ti.dag_id
     exec_date = context.get("execution_date")
     log_url = ti.log_url
     slack_webhook_token = BaseHook.get_connection(SLACK_CONN_ID).password
     slack_msg = f"""
             :red_circle: Task Failed.
-            *Task*: {task}
-            *Dag*: {dag}
+            *Task*: {task_id}
+            *Dag*: {dag_id}
             *Execution Time*: {exec_date}
             *Log Url*: {log_url}
             """
@@ -31,6 +31,7 @@ def task_fail_slack_alert(context):
         message=slack_msg,
         username="airflow",
     )
+    print(failed_alert)
     return failed_alert.execute(context=context)
 
 
