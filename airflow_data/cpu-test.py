@@ -1,14 +1,16 @@
 #!/usr/bin/env python
+
 from os import environ
-import json
 from airflow import DAG
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from airflow.utils.dates import days_ago
+from dronelogs.default_values import DEFAULT_VALUES
 
 DRONE_LOG_DAG = DAG(
     "airflow-test",
-    default_args={"owner": "airflow", "depends_on_past": False, "description": "CPU Tests",},
+    default_args=DEFAULT_VALUES,
     schedule_interval=None,  # '@once',
+    description="CPU Tests",
     start_date=days_ago(1),
 )
 

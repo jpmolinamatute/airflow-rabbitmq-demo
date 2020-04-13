@@ -6,12 +6,7 @@ from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOpera
 from airflow.contrib.kubernetes.secret import Secret
 from airflow.utils.dates import days_ago
 from airflow.utils.helpers import chain
-
-DEFAULT_ARGS = {
-    "owner": "airflow",
-    "depends_on_past": False,
-    "description": "Insert UUID row into db",
-}
+from dronelogs.default_values import DEFAULT_VALUES
 
 SECRET_ENV = Secret(deploy_type="env", deploy_target=None, secret="airflow-secret")
 
@@ -19,8 +14,9 @@ WORKLOAD = int(environ["DAG_WORKLOAD"])
 
 DRONE_LOG_DAG = DAG(
     environ["PIPILE_NAME"],
-    default_args=DEFAULT_ARGS,
+    default_args=DEFAULT_VALUES,
     schedule_interval=None,  # '@once',
+    description="Insert UUID row into db",
     start_date=days_ago(1),
 )
 
