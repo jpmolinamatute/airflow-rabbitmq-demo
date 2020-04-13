@@ -4,8 +4,6 @@ import json
 from airflow import DAG
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from airflow.utils.dates import days_ago
-from airflow.utils.helpers import chain
-
 
 DRONE_LOG_DAG = DAG(
     "airflow-test",
