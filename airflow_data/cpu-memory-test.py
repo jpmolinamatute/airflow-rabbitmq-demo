@@ -19,21 +19,7 @@ DRONE_LOG_DAG = DAG(
 )
 
 
-for i in range(1, 20):
-    MEM_TEST = KubernetesPodOperator(
-        dag=DRONE_LOG_DAG,
-        image="danielsantos/memorystress",
-        namespace="load-testing",
-        image_pull_policy="Always",
-        name="mem",
-        do_xcom_push=False,
-        in_cluster=True,
-        config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
-        is_delete_operator_pod=True,
-        hostnetwork=False,
-        task_id=f"task-1-{i}",
-    )
-
+for i in range(1, 21):
     CPU_TEST = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
         image="danielsantos/cpustress",
@@ -47,3 +33,19 @@ for i in range(1, 20):
         hostnetwork=False,
         task_id=f"task-2-{i}",
     )
+
+    MEM_TEST = KubernetesPodOperator(
+        dag=DRONE_LOG_DAG,
+        image=f"danielsantos/memorystress",
+        namespace="load-testing",
+        image_pull_policy="Always",
+        name="mem",
+        do_xcom_push=False,
+        in_cluster=True,
+        config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
+        is_delete_operator_pod=True,
+        hostnetwork=False,
+        task_id=f"task-1-{i}",
+    )
+
+    chain(CPU_TEST, MEM_TEST)
