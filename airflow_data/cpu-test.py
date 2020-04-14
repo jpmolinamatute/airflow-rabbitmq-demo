@@ -43,6 +43,8 @@ for i in range(1, 50):
         is_delete_operator_pod=True,
         hostnetwork=False,
         task_id=f"task-{i}",
+        retries=4,
+        retry_delay=datetime.timedelta(seconds=30),
     )
 
     chain(START_TIME, CPU_TEST, END_TIME)
