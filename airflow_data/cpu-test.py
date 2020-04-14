@@ -6,8 +6,8 @@ from airflow import DAG
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
-from dronelogs.default_values import DEFAULT_VALUES
 from airflow.utils.helpers import chain
+from dronelogs.default_values import DEFAULT_VALUES
 
 DRONE_LOG_DAG = DAG(
     "airflow-test",
@@ -30,7 +30,7 @@ def print_time():
 START_TIME = PythonOperator(task_id="starttime", python_callable=print_time,)
 END_TIME = PythonOperator(task_id="endtime", python_callable=print_time,)
 
-for i in range(1, 50):
+for i in range(1, 35):
     CPU_TEST = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
         image=f"{environ['DOCKER_REGISTRY']}/{environ['PIPILE_NAME']}:cputest",
