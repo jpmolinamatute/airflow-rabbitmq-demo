@@ -51,7 +51,7 @@ def task_successed_slack_alert(context):
         message=slack_msg,
         username="airflow",
         retries=4,
-        retry_delay=datetime.timedelta(seconds=3),
+        retry_delay=datetime.timedelta(seconds=30),
     )
 
     return failed_alert.execute(context=context)
