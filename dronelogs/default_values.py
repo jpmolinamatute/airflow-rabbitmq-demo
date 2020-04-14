@@ -50,8 +50,8 @@ def task_successed_slack_alert(context):
         webhook_token=slack_webhook_token,
         message=slack_msg,
         username="airflow",
-        retries=2,
-        retry_delay=datetime.timedelta(seconds=2),
+        retries=4,
+        retry_delay=datetime.timedelta(seconds=3),
     )
 
     return failed_alert.execute(context=context)
