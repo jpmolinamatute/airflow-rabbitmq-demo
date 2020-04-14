@@ -30,7 +30,7 @@ def print_time():
 START_TIME = PythonOperator(task_id="starttime", python_callable=print_time,)
 END_TIME = PythonOperator(task_id="endtime", python_callable=print_time,)
 
-for i in range(1, 40):
+for i in range(1, 45):
     CPU_TEST = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
         image=f"{environ['DOCKER_REGISTRY']}/{environ['PIPILE_NAME']}:cputest",
