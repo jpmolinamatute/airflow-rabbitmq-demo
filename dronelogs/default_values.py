@@ -11,6 +11,7 @@ def task_fail_slack_alert(context):
     slack_webhook_token = BaseHook.get_connection("slack").password
     slack_msg = f"""
             :red_circle: Task Failed.
+            ----------------
             *Task*: {task_id}
             *Dag*: {dag_id}
             *Execution Time*: {exec_date}
@@ -35,7 +36,8 @@ def task_successed_slack_alert(context):
     log_url = ti.log_url
     slack_webhook_token = BaseHook.get_connection("slack").password
     slack_msg = f"""
-            :green_circle: Task Successed.
+            Task Successed.
+            ---------------
             *Task*: {task_id}
             *Dag*: {dag_id}
             *Execution Time*: {exec_date}
