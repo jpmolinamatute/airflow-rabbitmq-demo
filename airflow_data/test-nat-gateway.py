@@ -22,7 +22,7 @@ DRONE_LOG_DAG = DAG(
 
 INDEX_FILE = "index.txt"
 INDEX_PREFIX = f"airflow/{environ['PIPILE_NAME']}/indexes"
-INDEX = KubernetesPodOperator(
+INDEX2 = KubernetesPodOperator(
     dag=DRONE_LOG_DAG,
     image=f"{environ['DOCKER_REGISTRY']}/{environ['PIPILE_NAME']}:index",
     namespace="airflow",
@@ -48,7 +48,7 @@ for i in range(1, WORKLOAD + 1):
         }
     )
 
-    DECRYPT_FILES = KubernetesPodOperator(
+    DECRYPT_FILES2 = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
         image=f"{environ['DOCKER_REGISTRY']}/{environ['PIPILE_NAME']}:decrypt",
         namespace="airflow",
@@ -62,7 +62,7 @@ for i in range(1, WORKLOAD + 1):
         config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
         is_delete_operator_pod=True,
         hostnetwork=False,
-        task_id=f"{environ['PIPILE_NAME']}-task-2-{i}",
+        task_id=f"{environ['PIPILE_NAME']}-task-1-{i}",
     )
 
-    chain(INDEX, DECRYPT_FILES)
+    chain(INDEX2, DECRYPT_FILES2)
