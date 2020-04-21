@@ -9,11 +9,11 @@ from airflow.utils.helpers import chain
 from dronelogs.default_values import DEFAULT_VALUES
 
 SECRET_ENV = Secret(deploy_type="env", deploy_target=None, secret="airflow-secret")
-
+PIPILE_NAME = "dronelogs"
 WORKLOAD = int(environ["DAG_WORKLOAD"])
 
 DRONE_LOG_DAG = DAG(
-    environ["PIPILE_NAME"],
+    PIPILE_NAME,
     default_args=DEFAULT_VALUES,
     schedule_interval=None,  # '@once',
     description="Insert UUID row into db",

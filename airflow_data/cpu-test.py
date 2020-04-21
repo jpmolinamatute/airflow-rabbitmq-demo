@@ -9,8 +9,9 @@ from airflow.utils.dates import days_ago
 from airflow.utils.helpers import chain
 from dronelogs.default_values import DEFAULT_VALUES
 
+PIPILE_NAME = "airflow-test"
 DRONE_LOG_DAG = DAG(
-    "airflow-test",
+    PIPILE_NAME,
     default_args=DEFAULT_VALUES,
     schedule_interval=None,  # '@once',
     description="CPU Tests",
@@ -33,7 +34,7 @@ END_TIME = PythonOperator(task_id="endtime", python_callable=print_time,)
 for i in range(1, 50):
     CPU_TEST = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
-        image=f"{environ['DOCKER_REGISTRY']}/{environ['PIPILE_NAME']}:cputest",
+        image=f"{environ['DOCKER_REGISTRY']}/dronelogs:cputest",
         namespace="load-testing",
         image_pull_policy="Always",
         name="cpu",
@@ -42,7 +43,7 @@ for i in range(1, 50):
         config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
         is_delete_operator_pod=True,
         hostnetwork=False,
-        task_id=f"task-{i}",
+        task_id=f"{PIPILE_NAME}-task-{i}",
         retries=4,
         retry_delay=datetime.timedelta(seconds=30),
     )
