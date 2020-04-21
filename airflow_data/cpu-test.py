@@ -34,7 +34,7 @@ END_TIME = PythonOperator(task_id="endtime", python_callable=print_time,)
 for i in range(1, 50):
     CPU_TEST = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
-        image=f"{environ['DOCKER_REGISTRY']}/dronelogs:cputest",
+        image=f"{environ['DOCKER_REGISTRY']}/pipeline/dronelogs:cputest",
         namespace="load-testing",
         image_pull_policy="Always",
         name="cpu",

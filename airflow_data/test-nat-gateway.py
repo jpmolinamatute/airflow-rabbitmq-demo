@@ -24,7 +24,7 @@ INDEX_FILE = "index.txt"
 INDEX_PREFIX = f"airflow/{PIPILE_NAME}/indexes"
 INDEX2 = KubernetesPodOperator(
     dag=DRONE_LOG_DAG,
-    image=f"{environ['DOCKER_REGISTRY']}/{PIPILE_NAME}:index",
+    image=f"{environ['DOCKER_REGISTRY']}/pipeline/{PIPILE_NAME}:index",
     namespace="airflow",
     image_pull_policy="Always",
     name="index",
@@ -50,7 +50,7 @@ for i in range(1, WORKLOAD + 1):
 
     DECRYPT_FILES2 = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
-        image=f"{environ['DOCKER_REGISTRY']}/{PIPILE_NAME}:decrypt",
+        image=f"{environ['DOCKER_REGISTRY']}/pipeline/{PIPILE_NAME}:decrypt",
         namespace="airflow",
         image_pull_policy="Always",
         name="decrypt",
