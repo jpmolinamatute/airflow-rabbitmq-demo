@@ -2,7 +2,7 @@
 
 import sys
 from os import environ
-from dronelogs.shared.s3_upload_download import upload_file
+from testnatgateway.shared.s3_upload_download import upload_file
 import boto3
 
 CONN = boto3.client("s3")

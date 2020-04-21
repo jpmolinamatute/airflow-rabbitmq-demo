@@ -6,10 +6,10 @@ from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOpera
 from airflow.contrib.kubernetes.secret import Secret
 from airflow.utils.dates import days_ago
 from airflow.utils.helpers import chain
-from dronelogs.default_values import DEFAULT_VALUES
+from testnatgateway.default_values import DEFAULT_VALUES
 
 SECRET_ENV = Secret(deploy_type="env", deploy_target=None, secret="airflow-secret")
-PIPILE_NAME = "test-nat-gateway"
+PIPILE_NAME = "testnatgateway"
 WORKLOAD = int(environ["DAG_WORKLOAD"])
 
 DRONE_LOG_DAG = DAG(

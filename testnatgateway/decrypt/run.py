@@ -2,8 +2,8 @@
 import sys
 import json
 from os import environ
-from dronelogs.shared.get_uuid_from_string import get_file_from_key
-from dronelogs.shared.s3_upload_download import download_file, upload_file
+from testnatgateway.shared.get_uuid_from_string import get_file_from_key
+from testnatgateway.shared.s3_upload_download import download_file, upload_file
 
 
 def copy_files(single_file):
