@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow
+  namespace: mlflow
+  labels:
+    app: mlflow
+spec:
+  selector:
+    matchLabels:
+      app: mlflow-server
+  template:
+    metadata:
+      labels:
+        app: mlflow-server
+    spec:
+      containers:
+        - name: server
+          imagePullPolicy: Always
+          image: 344286188962.dkr.ecr.us-east-2.amazonaws.com/mlflow:v1
+          envFrom:
+            - configMapRef:
+                name: airflow-config
+            - secretRef:
+                name: airflow-secret
+          ports:
+            - containerPort: 5000
+              name: web
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: server
+  namespace: mlflow
+spec:
+  ports:
+    - name: web
+      port: 5000
+      protocol: TCP
+      targetPort: 5000
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

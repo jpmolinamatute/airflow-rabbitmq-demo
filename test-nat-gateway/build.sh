@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 base_path=$(dirname "$(readlink -f "$0")")
-REGISTRY="344286188962.dkr.ecr.us-east-2.amazonaws.com/pipeline/$(basename "$base_path")"
+BASE_DIR=$(basename "$base_path")
+REGISTRY="344286188962.dkr.ecr.us-east-2.amazonaws.com/pipeline/${BASE_DIR}"
 
 image="$1"
 : "${image:=all}"
@@ -20,7 +21,7 @@ build() {
     local tag="${REGISTRY}:${localimage}"
 
     echo "Building $localimage image"
-    if ! docker build --rm -f "${base_path}/$localimage/Dockerfile" -t "$tag" .; then
+    if ! docker build --rm -f "${base_path}/$localimage/Dockerfile" -t "$tag" --build-arg "SRC_DIR=${BASE_DIR}" .; then
         echo "Error: Building $localimage image failed" >&2
         exit 2
     fi
