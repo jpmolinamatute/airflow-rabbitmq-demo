@@ -35,7 +35,7 @@ INDEX = KubernetesPodOperator(
     config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
     is_delete_operator_pod=True,
     hostnetwork=False,
-    task_id="{PIPILE_NAME}-task-0",
+    task_id=f"{PIPILE_NAME}-task-0",
 )
 
 for i in range(1, WORKLOAD + 1):
