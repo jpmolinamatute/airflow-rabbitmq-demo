@@ -35,7 +35,7 @@ INDEX = KubernetesPodOperator(
     config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
     is_delete_operator_pod=True,
     hostnetwork=False,
-    task_id="task-0",
+    task_id="{PIPILE_NAME}-task-0",
 )
 
 for i in range(1, WORKLOAD + 1):
@@ -62,7 +62,7 @@ for i in range(1, WORKLOAD + 1):
         config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
         is_delete_operator_pod=True,
         hostnetwork=False,
-        task_id=f"task-1-{i}",
+        task_id=f"{PIPILE_NAME}-task-1-{i}",
     )
     DECRYPT_FILES = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
@@ -81,7 +81,7 @@ for i in range(1, WORKLOAD + 1):
         config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
         is_delete_operator_pod=True,
         hostnetwork=False,
-        task_id=f"task-2-{i}",
+        task_id=f"{PIPILE_NAME}-task-2-{i}",
     )
 
     chain(INDEX, INIT_FLOW, DECRYPT_FILES)

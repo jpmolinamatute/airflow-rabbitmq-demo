@@ -3,7 +3,7 @@
 from os import path, stat, remove as remove_file
 import boto3
 
-CONN = boto3.client("s3")
+CONN = boto3.client("s3", region_name="us-east-2")
 
 
 def download_file(bucket, key, single_file):

@@ -5,7 +5,7 @@ from os import environ
 from testnatgateway.shared.s3_upload_download import upload_file
 import boto3
 
-CONN = boto3.client("s3")
+CONN = boto3.client("s3", region_name="us-east-2")
 
 
 def create_no_lines_file(no_lines):
