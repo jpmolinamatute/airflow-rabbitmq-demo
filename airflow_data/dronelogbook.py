@@ -85,7 +85,7 @@ for i in range(1, WORKLOAD + 1):
         do_xcom_push=False,
         arguments=[ARGUMENTS],
         secrets=[SECRET_ENV],
-        # env_vars={"BATCH_FILE": templated_command, "PIPILE_NAME": PIPILE_NAME},
+        env_vars={"BATCH_FILE": templated_command, "PIPILE_NAME": PIPILE_NAME},
         configmaps=["airflow-config"],
         in_cluster=True,
         config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
