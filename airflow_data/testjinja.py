@@ -51,3 +51,6 @@ DECRYPT_FILES = KubernetesPodOperator(
     hostnetwork=False,
     task_id=f"{PIPILE_NAME}-task-1",
 )
+
+
+INDEX >> DECRYPT_FILES
