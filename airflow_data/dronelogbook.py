@@ -38,6 +38,7 @@ INDEX = KubernetesPodOperator(
     task_id=f"{PIPILE_NAME}-task-0",
 )
 
+
 for i in range(1, WORKLOAD + 1):
     ARGUMENTS = json.dumps(
         {
@@ -47,7 +48,10 @@ for i in range(1, WORKLOAD + 1):
             "worklaod": WORKLOAD,
         }
     )
-
+    templated_command = "{% "
+    templated_command += f"sub_index_path = ti.xcom_pull(dag_id='dronelogs', task_ids='{PIPILE_NAME}-task-1-{i}', key='sub_index_path')"
+    templated_command += " %}"
+    templated_command += "echo {{sub_index_path['sub_index_path']}}"
     INIT_FLOW = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
         image=f"{environ['DOCKER_REGISTRY']}/pipeline/{PIPILE_NAME}:init",
@@ -73,9 +77,7 @@ for i in range(1, WORKLOAD + 1):
         do_xcom_push=False,
         arguments=[ARGUMENTS],
         secrets=[SECRET_ENV],
-        env_vars={
-            "BATCH_FILE": "{{ ti.xcom_pull(dag_id='dronelogs', task_ids='task-1-1', key='sub_index_path') }}"
-        },
+        env_vars={"BATCH_FILE": templated_command},
         configmaps=["airflow-config"],
         in_cluster=True,
         config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
