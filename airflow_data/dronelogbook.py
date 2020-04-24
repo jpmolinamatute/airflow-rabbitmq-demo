@@ -51,6 +51,7 @@ for i in range(1, WORKLOAD + 1):
     )
     templated_command = "{% "
     templated_command += f"""
+        import json
         print(json.dumps(ti.xcom_pull(
             dag_id='dronelogs',
             task_ids='{PIPILE_NAME}-task-1-{i}',
