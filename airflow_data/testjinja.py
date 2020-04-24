@@ -33,7 +33,8 @@ INDEX = KubernetesPodOperator(
 templated_command = "{{"
 templated_command += "ti.xcom_pull("
 templated_command += f"dag_id='{PIPILE_NAME}', task_ids='{PIPILE_NAME}-task-0'"
-templated_command += ", key='sub_index_path')"
+templated_command += ")"
+# , key='sub_index_path'
 templated_command += "}}"
 
 DECRYPT_FILES = KubernetesPodOperator(
