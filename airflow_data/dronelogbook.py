@@ -51,12 +51,11 @@ for i in range(1, WORKLOAD + 1):
     )
     templated_command = "{% "
     templated_command += f"""
-        a_path = ti.xcom_pull(
+        print(json.dumps(ti.xcom_pull(
             dag_id='dronelogs',
             task_ids='{PIPILE_NAME}-task-1-{i}',
             key='sub_index_path'
-        )
-        print(json.dumps(a_path))
+        )))
     """
     templated_command += " %}"
     INIT_FLOW = KubernetesPodOperator(
