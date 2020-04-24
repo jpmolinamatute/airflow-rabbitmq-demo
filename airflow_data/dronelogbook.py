@@ -49,10 +49,14 @@ for i in range(1, WORKLOAD + 1):
             "worklaod": WORKLOAD,
         }
     )
-    templated_command = "{% "
-    templated_command += f"sub_index_path = ti.xcom_pull(dag_id='dronelogs', task_ids='{PIPILE_NAME}-task-1-{i}', key='sub_index_path')"
-    templated_command += "print(json.dumps(sub_index_path))"
-    templated_command += " %}"
+    templated_command = f"""{% 
+        sub_index_path = ti.xcom_pull(
+        dag_id='dronelogs',
+        task_ids='{PIPILE_NAME}-task-1-{i}',
+        key='sub_index_path'
+        )"
+        print(json.dumps(sub_index_path))"
+    %}"""
     INIT_FLOW = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
         image=f"{environ['DOCKER_REGISTRY']}/pipeline/{PIPILE_NAME}:init",
