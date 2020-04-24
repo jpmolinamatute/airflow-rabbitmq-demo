@@ -86,7 +86,7 @@ for i in range(1, WORKLOAD + 1):
         image_pull_policy="Always",
         name="decrypt",
         do_xcom_push=False,
-        arguments=[ARGUMENTS],
+        arguments=[ARGUMENTS, templated_command],
         secrets=[SECRET_ENV],
         env_vars={"BATCH_FILE": templated_command, "PIPILE_NAME": PIPILE_NAME},
         configmaps=["airflow-config"],
