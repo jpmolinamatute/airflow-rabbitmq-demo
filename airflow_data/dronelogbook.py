@@ -59,9 +59,9 @@ for i in range(1, WORKLOAD + 1):
     #     )))
     # """
     # templated_command += " %}"
-    templated_command = "{"
+    templated_command = "{{"
     templated_command += f"ti.xcom_pull(dag_id='{PIPILE_NAME}', task_ids='{PIPILE_NAME}-task-1-{i}', key='sub_index_path')"
-    templated_command += "}"
+    templated_command += "}}"
     INIT_FLOW = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
         image=f"{environ['DOCKER_REGISTRY']}/pipeline/{PIPILE_NAME}:init",

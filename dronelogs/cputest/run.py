@@ -52,9 +52,10 @@ def list_files(index_file_name):
 
 
 if __name__ == "__main__":
-    # for num in range(10):
-    #     init()
-    print("cputest has started!!!")
-    list_files("hola.txt")
-    upload_file(environ["AWS_CLEAN_S3_BUCKET"], "deleteme/hola.txt", "./hola.txt")
+    for num in range(10):
+        print(str(num))
+        init()
+    # print("cputest has started!!!")
+    # list_files("hola.txt")
+    # upload_file(environ["AWS_CLEAN_S3_BUCKET"], "deleteme/hola.txt", "./hola.txt")
     sys.exit(0)

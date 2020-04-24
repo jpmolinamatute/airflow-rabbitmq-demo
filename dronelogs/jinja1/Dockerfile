@@ -5,14 +5,10 @@ ENV USER airflow
 ENV USER_HOME /opt/${USER}
 ENV PYTHONPATH ${USER_HOME}:/usr/local/lib/python3.7/site-packages
 
-RUN set -eux;\
-    adduser -SD -u 999 -h $USER_HOME $USER;\
-    pip install --progress-bar off --no-cache-dir boto3 botocore
+RUN adduser -SD -u 999 -h $USER_HOME $USER
 
 USER ${USER}
-RUN mkdir -p ${USER_HOME}/${SRC_DIR}/shared ${USER_HOME}/${SRC_DIR}/${IMAGE_NAME}
-COPY --chown=$USER:nogroup __init__.py ${USER_HOME}/${SRC_DIR}/__init__.py
-COPY --chown=$USER:nogroup shared ${USER_HOME}/${SRC_DIR}/shared
+RUN mkdir -p ${USER_HOME}/${SRC_DIR}/${IMAGE_NAME}
 COPY --chown=$USER:nogroup ${IMAGE_NAME}/run.py ${USER_HOME}/${SRC_DIR}/${IMAGE_NAME}/run.py
 
 WORKDIR ${USER_HOME}/${SRC_DIR}/${IMAGE_NAME}
