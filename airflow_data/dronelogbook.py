@@ -49,22 +49,14 @@ for i in range(1, WORKLOAD + 1):
             "worklaod": WORKLOAD,
         }
     )
-    # templated_command = "{% "
-    # templated_command += f"""
-    #     import json
-    #     print(json.dumps(ti.xcom_pull(
-    #         dag_id='{PIPILE_NAME}',
-    #         task_ids='{PIPILE_NAME}-task-1-{i}',
-    #         key='sub_index_path'
-    #     )))
-    # """
-    # templated_command += " %}"
     templated_command = "{{"
-    templated_command += f"ti.xcom_pull(dag_id='{PIPILE_NAME}', task_ids='{PIPILE_NAME}-task-1-{i}', key='sub_index_path')"
+    templated_command += "ti.xcom_pull("
+    templated_command += f"dag_id='{PIPILE_NAME}', task_ids='{PIPILE_NAME}-task-1-{i}'"
+    templated_command += ")"
     templated_command += "}}"
-    INIT_FLOW = KubernetesPodOperator(
+    SUB_INDEX = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
-        image=f"{environ['DOCKER_REGISTRY']}/pipeline/{PIPILE_NAME}:init",
+        image=f"{environ['DOCKER_REGISTRY']}/pipeline/{PIPILE_NAME}:subindex",
         namespace="airflow",
         image_pull_policy="Always",
         name="init",
@@ -78,6 +70,24 @@ for i in range(1, WORKLOAD + 1):
         is_delete_operator_pod=True,
         hostnetwork=False,
         task_id=f"{PIPILE_NAME}-task-1-{i}",
+    )
+
+    INSERT = KubernetesPodOperator(
+        dag=DRONE_LOG_DAG,
+        image=f"{environ['DOCKER_REGISTRY']}/pipeline/{PIPILE_NAME}:insert",
+        namespace="airflow",
+        image_pull_policy="Always",
+        name="init",
+        secrets=[SECRET_ENV],
+        do_xcom_push=False,
+        configmaps=["airflow-config"],
+        arguments=[ARGUMENTS, templated_command],
+        in_cluster=True,
+        env_vars={"PIPILE_NAME": PIPILE_NAME},
+        config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
+        is_delete_operator_pod=True,
+        hostnetwork=False,
+        task_id=f"{PIPILE_NAME}-task-2-{i}",
     )
     DECRYPT_FILES = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
@@ -94,7 +104,7 @@ for i in range(1, WORKLOAD + 1):
         config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
         is_delete_operator_pod=True,
         hostnetwork=False,
-        task_id=f"{PIPILE_NAME}-task-2-{i}",
+        task_id=f"{PIPILE_NAME}-task-3-{i}",
     )
 
-    chain(INDEX, INIT_FLOW, DECRYPT_FILES)
+    chain(INDEX, SUB_INDEX, INSERT, DECRYPT_FILES)

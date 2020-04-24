@@ -22,18 +22,18 @@ def create_index(index_file_name):
 
     no_lines = 0
     keep_going = True
-    days_file = open(f"./{index_file_name}", "w+")
+    index_file_obj = open(f"./{index_file_name}", "w+")
     while keep_going:
         for name in objs["Contents"]:
             no_lines += 1
-            days_file.write(f'{name["Key"]}\n')
+            index_file_obj.write(f'{name["Key"]}\n')
         if "NextContinuationToken" in objs:
             objs = CONN.list_objects_v2(
                 Bucket=bucket, Prefix=prefix, ContinuationToken=objs["NextContinuationToken"]
             )
         else:
             keep_going = False
-    days_file.close()
+    index_file_obj.close()
     return no_lines
 
 

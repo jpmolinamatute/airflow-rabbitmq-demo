@@ -8,13 +8,13 @@ import boto3
 CONN = boto3.client("s3")
 
 
-def create_no_lines_file(file_prefix, no_lines):
+def create_no_lines_file(index_prefix, no_lines):
     with open("./no_lines.txt", "w") as file_obj:
         file_obj.write(str(no_lines))
-    upload_file(environ["AWS_BUCKET_NAME"], f"{file_prefix}/no_lines.txt", "./no_lines.txt")
+    upload_file(environ["AWS_BUCKET_NAME"], f"{index_prefix}/no_lines.txt", "./no_lines.txt")
 
 
-def init(file_prefix, file_name):
+def init(index_prefix, index_file):
     bucket = environ["AWS_RAW_S3_BUCKET"]
     prefix = environ["AWS_RAW_S3_PREFIX"]
     objs = CONN.list_objects_v2(Bucket=bucket, Prefix=prefix)
@@ -23,7 +23,7 @@ def init(file_prefix, file_name):
 
     no_lines = 0
     keep_going = True
-    index_file = open(f"./index.txt", "w+")
+    index_file_obj = open(f"./{index_file}", "w+")
     while keep_going:
         sub_index_file = open("./sub-index.txt", "w+")
         start_point = no_lines + 1
@@ -31,9 +31,9 @@ def init(file_prefix, file_name):
             no_lines += 1
             sub_index_file.write(f'{name["Key"]}\n')
         sub_index_file.close()
-        upload_file_name = f"{file_prefix}/sub-index-{str(start_point)}-{str(no_lines)}"
+        upload_file_name = f"{index_prefix}/sub-index-{str(start_point)}-{str(no_lines)}"
         upload_file(environ["AWS_BUCKET_NAME"], upload_file_name, "./sub-index.txt")
-        index_file.write(f"{upload_file_name}\n")
+        index_file_obj.write(f"{upload_file_name}\n")
 
         if "NextContinuationToken" in objs:
             objs = CONN.list_objects_v2(
@@ -42,9 +42,9 @@ def init(file_prefix, file_name):
 
         else:
             keep_going = False
-    index_file.close()
-    create_no_lines_file(file_prefix, no_lines)
-    upload_file(environ["AWS_BUCKET_NAME"], f"{file_prefix}/index.txt", "./index.txt")
+    index_file_obj.close()
+    create_no_lines_file(index_prefix, no_lines)
+    upload_file(environ["AWS_BUCKET_NAME"], f"{index_prefix}/{index_file}", f"./{index_file}")
 
 
 if __name__ == "__main__":
