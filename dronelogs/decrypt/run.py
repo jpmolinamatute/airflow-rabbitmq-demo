@@ -29,20 +29,6 @@ def check_dependency(connection, uuid):
     return result
 
 
-def get_file_path(connection, uuid):
-    cursor = connection.cursor()
-    tablename = environ["PIPILE_NAME"]
-    sql_str = "SELECT file_name "
-    sql_str += f"FROM {tablename} "
-    sql_str += "WHERE uuid = %s;"
-    cursor.execute(sql_str, (uuid,))
-    result = cursor.fetchone()
-    if isinstance(result, tuple):
-        result = result[0]
-    cursor.close()
-    return result
-
-
 def update_table_row(connection, uuid, success=False):
     cursor = connection.cursor()
     tablename = environ["PIPILE_NAME"]
@@ -68,48 +54,37 @@ def copy_files(uuid, single_file):
     return success
 
 
-def init(input_dict):
-    # result = None
-    # with open("/airflow/xcom/return.json", mode="r") as file_obj:
-    #     result = json.load(file_obj)
-    connection = get_db_conn()
+def process_sub_index(connection, sub_index_name):
+    file_name = get_file_from_key(sub_index_name)
+    download_file(environ["AWS_BUCKET_NAME"], sub_index_name, f"./{file_name}")
+    with open(f"./{file_name}", "r") as text_file:
+        for line in text_file:
+            uuid = get_uuid(line)
+            if isinstance(uuid, str):
+                if check_dependency(connection, uuid):
+                    # success = copy_files(uuid, line)
+                    success = True
+                    print(f"Updating row with {uuid}")
+                    update_table_row(connection, uuid, success)
+            else:
+                print(f"Error: wrong UUID {line}")
 
-    if connection:
-        sub_index_name = f'subindex-{input_dict["batch_number"]}.txt'
-        download_file(
-            environ["AWS_BUCKET_NAME"],
-            f'{input_dict["index_prefix"]}/{sub_index_name}',
-            f"./{sub_index_name}",
-        )
-        with open(f"./{sub_index_name}", mode="r") as file_obj:
-            for uuid in file_obj:
-                uuid = get_uuid(uuid)
-                if uuid:
-                    if check_dependency(connection, uuid):
-                        file_path = get_file_path(connection, uuid)
-                        if isinstance(file_path, str):
-                            success = copy_files(uuid, file_path)
-                            update_table_row(connection, uuid, success)
-                        else:
-                            print(f"Error: {uuid} doesn't have a file_name in table")
-                elif uuid == "empty":
-                    print(f"Info: File is empty")
-                else:
-                    print(f"Warning: wronge uuid: {uuid}")
+
+def init(input_dict):
+    file_list = input_dict.replace("'", '"')
+    file_list = json.loads(file_list)
+    if "file_list" in file_list and isinstance(file_list["file_list"], list):
+        connection = get_db_conn()
+        for fl in file_list["file_list"]:
+            process_sub_index(connection, fl)
         connection.close()
     else:
-        raise Exception("Error: Connection to DB failed")
+        raise Exception("Error: file_list wasn't provided")
 
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        GLOBAL_INPUT = json.loads(sys.argv[1])
-        # init(GLOBAL_INPUT)
-        print("================================================================")
-        print("================================================================")
-        print(sys.argv[2])
-        print("================================================================")
-        print("================================================================")
+        init(sys.argv[1])
         sys.exit(0)
     else:
         print("failed!")
