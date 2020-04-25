@@ -22,6 +22,7 @@ def init(index_prefix, index_file):
         raise Exception(f"Error: there are no files in {bucket}")
 
     no_lines = 0
+    no_files = 0
     keep_going = True
     index_file_obj = open(f"./{index_file}", "w+")
     while keep_going:
@@ -34,16 +35,15 @@ def init(index_prefix, index_file):
         upload_file_name = f"{index_prefix}/sub-index-{str(start_point)}-{str(no_lines)}"
         upload_file(environ["AWS_BUCKET_NAME"], upload_file_name, "./sub-index.txt")
         index_file_obj.write(f"{upload_file_name}\n")
-
+        no_files += 1
         if "NextContinuationToken" in objs:
             objs = CONN.list_objects_v2(
                 Bucket=bucket, Prefix=prefix, ContinuationToken=objs["NextContinuationToken"]
             )
-
         else:
             keep_going = False
     index_file_obj.close()
-    create_no_lines_file(index_prefix, no_lines)
+    create_no_lines_file(index_prefix, no_files)
     upload_file(environ["AWS_BUCKET_NAME"], f"{index_prefix}/{index_file}", f"./{index_file}")
 
 

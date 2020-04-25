@@ -51,7 +51,7 @@ for i in range(1, WORKLOAD + 1):
     )
     templated_command = "{{"
     templated_command += "ti.xcom_pull("
-    templated_command += f"dag_id='{PIPILE_NAME}', task_ids='{PIPILE_NAME}-task-1-{i}'"
+    templated_command += f"dag_id='{PIPILE_NAME}', task_ids='{PIPILE_NAME}-subindex-{i}'"
     templated_command += ")"
     templated_command += "}}"
     SUB_INDEX = KubernetesPodOperator(
@@ -69,7 +69,7 @@ for i in range(1, WORKLOAD + 1):
         config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
         is_delete_operator_pod=True,
         hostnetwork=False,
-        task_id=f"{PIPILE_NAME}-task-1-{i}",
+        task_id=f"{PIPILE_NAME}-subindex-{i}",
     )
 
     INSERT = KubernetesPodOperator(
@@ -87,7 +87,7 @@ for i in range(1, WORKLOAD + 1):
         config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
         is_delete_operator_pod=True,
         hostnetwork=False,
-        task_id=f"{PIPILE_NAME}-task-2-{i}",
+        task_id=f"{PIPILE_NAME}-insert-{i}",
     )
     DECRYPT_FILES = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
@@ -104,7 +104,7 @@ for i in range(1, WORKLOAD + 1):
         config_file=f"{environ['AIRFLOW_HOME']}/.kube/config",
         is_delete_operator_pod=True,
         hostnetwork=False,
-        task_id=f"{PIPILE_NAME}-task-3-{i}",
+        task_id=f"{PIPILE_NAME}-decrypt-{i}",
     )
 
     chain(INDEX, SUB_INDEX, INSERT, DECRYPT_FILES)

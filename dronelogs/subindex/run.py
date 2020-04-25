@@ -53,10 +53,17 @@ def get_file_list(input_dict):
     file_range = get_range_file(
         num_lines, int(input_dict["batch_number"]), int(input_dict["worklaod"]),
     )
+    print(f"starts {file_range[0]} ends {file_range[1]}")
     with open(f'./{input_dict["index_file"]}', "r") as text_file:
+        print(f'file ./{input_dict["index_file"]} is open')
         lines = text_file.readlines()
         lines = lines[file_range[0] : file_range[1]]
-    return lines
+
+    clean_lines = []
+    for aline in lines:
+        clean_lines.append(aline.rstrip("\n"))
+
+    return clean_lines
 
 
 def init(input_dict):
