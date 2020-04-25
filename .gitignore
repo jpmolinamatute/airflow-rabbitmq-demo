@@ -5,3 +5,4 @@ config
 known_hosts
 **/Environment
 **/__pycache__/
+dronelogs/ACCOUNTNO
