@@ -52,7 +52,7 @@ for i in range(1, WORKLOAD + 1):
     templated_command = "{{"
     templated_command += "ti.xcom_pull("
     templated_command += f"dag_id='{PIPILE_NAME}', task_ids='{PIPILE_NAME}-subindex-{i}'"
-    templated_command += ")['file_list']"
+    templated_command += ")"
     templated_command += "}}"
     SUB_INDEX = KubernetesPodOperator(
         dag=DRONE_LOG_DAG,
