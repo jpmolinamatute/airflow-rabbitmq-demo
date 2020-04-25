@@ -131,7 +131,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         # GLOBAL_INPUT = json.loads(sys.argv[1])
         # init(GLOBAL_INPUT)
-        print(json.loads(sys.argv[2]))
+        # print(json.loads(sys.argv[2]))
+        print(sys.argv[2])
         sys.exit(0)
     else:
         print("failed!")

@@ -39,11 +39,10 @@ def get_range_file(count, batch_number, worklaod):
     return batch_range
 
 
-def write_summary(sub_index_path):
+def write_summary(file_list):
     if path.isdir("/airflow/xcom"):
-        result = {"file_list": sub_index_path}
         with open("/airflow/xcom/return.json", mode="w") as file_obj:
-            json.dump(result, file_obj)
+            json.dump({"file_list": file_list}, file_obj)
     else:
         raise ValueError("Error: /airflow/xcom doesn't exist")
 
