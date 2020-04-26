@@ -21,9 +21,9 @@ build() {
     local tag="${REGISTRY}:${localimage}"
 
     echo "Building $localimage image"
-    if ! docker build --rm -f "${base_path}/$localimage/Dockerfile" -t "$tag" --build-arg "SRC_DIR=${BASE_DIR}" .; then
-        echo "Error: Building $localimage image failed" >&2
-        exit 2
+    if ! docker build --rm -f "${base_path}/$localimage/Dockerfile" -t "$tag" --build-arg "SRC_DIR=${BASE_DIR}" --build-arg "USER=airflow" .; then
+        echo "Error: Building $localimage image failed\n"
+
     fi
 }
 
