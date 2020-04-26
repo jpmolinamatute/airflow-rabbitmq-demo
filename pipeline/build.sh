@@ -26,8 +26,9 @@ build() {
     local localimage="$1"
     local tag="${REGISTRY}:${localimage}"
     local returnValue=0
+
     echo "Building $localimage image"
-    if ! docker build --rm -f "${BASE_PATH}/$localimage/Dockerfile" -t "$tag" --build-arg "SRC_DIR=${BASE_DIR}" --build-arg "IMAGE_NAME=${localimage}" --build-arg "USER=airflow" .; then
+    if ! docker build --rm -f "${BASE_PATH}/${PIPELELINE_NAME}/$localimage/Dockerfile" -t "$tag" --build-arg "SRC_DIR=${BASE_DIR}" --build-arg "IMAGE_NAME=${localimage}" --build-arg "USER=airflow" "${BASE_PATH}/${PIPELELINE_NAME}"; then
         ERROR_MESSAGE="${ERROR_MESSAGE}Error: Building $localimage image failed\n"
         returnValue=2
     fi
@@ -59,15 +60,17 @@ processimage() {
     local firstcolumn
     local build_icon
     local push_icon
+    local buildsuccessed
     firstcolumn="$(getcolumn "$WORDLEN" "$localimage")"
 
     if build "$localimage"; then
         build_icon=$SUCCESS
+        buildsuccessed="YES"
     else
         build_icon=$FAILED
     fi
     RESULT="${RESULT}${firstcolumn}  ${build_icon}"
-    if [[ -n $PUSH ]]; then
+    if [[ -n $PUSH && $buildsuccessed ]]; then
         if push "$localimage"; then
             push_icon=$SUCCESS
         else
@@ -84,7 +87,7 @@ setregistry() {
         . "${BASE_PATH}/ACCOUNTNO"
     fi
     if [[ -n $AWS_ACCOUNT_NO ]]; then
-        export REGISTRY="${AWS_ACCOUNT_NO}.dkr.ecr.us-east-2.amazonaws.com/pipeline/${BASE_DIR}"
+        export REGISTRY="${AWS_ACCOUNT_NO}.dkr.ecr.us-east-2.amazonaws.com/pipeline/${PIPELELINE_NAME}"
     else
         echo "Error: AWS Account Number not provided" >&2
         exit 2
@@ -104,6 +107,7 @@ checkpipeline() {
 }
 
 getsystemlist() {
+    cd "${BASE_PATH}/${PIPELELINE_NAME}" || return 2
     # @INFO: loop through all directories looking for Dockerfile file and then append it to list array
     for singleimage in */; do
         # @INFO: at this point $singleimage contains a trailing / so we don't need to add an extra one for next line
@@ -115,6 +119,7 @@ getsystemlist() {
             SYSTEMLIST=("$singleimage" "${SYSTEMLIST[@]}")
         fi
     done
+    cd - || return 2
 }
 
 displayhelp() {
@@ -132,17 +137,22 @@ EOF
 }
 
 displayresult() {
-    RESULT="${RESULT::-2}"
-    echo
-    echo
-    echo "Image        built     pushed"
-    echo "============================="
-    echo -e "${RESULT}"
-    echo "============================="
-    echo
-    echo
-    if [[ -n $ERROR_MESSAGE ]]; then
-        echo -e "\e[31m$ERROR_MESSAGE\e[0m" >&2
+    if [[ -n $RESULT ]]; then
+        RESULT="${RESULT::-2}"
+        echo
+        echo
+        echo "Image        built     pushed"
+        echo "============================="
+        echo -e "${RESULT}"
+        echo "============================="
+        echo
+        echo
+        if [[ -n $ERROR_MESSAGE ]]; then
+            echo -e "\e[31m$ERROR_MESSAGE\e[0m" >&2
+            exit 2
+        fi
+    else
+        echo "Error: Something went wrong, there are not results to show" >&2
         exit 2
     fi
 }
@@ -159,6 +169,9 @@ main() {
         for userimage in "${USERLIST[@]}"; do
             if [[ ${SYSTEMLIST[*]} =~ $userimage ]]; then
                 processimage "$userimage"
+            else
+                echo "Error: Invalid image '${userimage}' for pipeline '${PIPELELINE_NAME}'"
+                exit 2
             fi
         done
     fi
@@ -191,9 +204,8 @@ getUserInput() {
     done
 }
 
-cd "$BASE_PATH" || exit 2
-
 getUserInput "$@"
+checkpipeline
 getsystemlist
 setregistry
 main
