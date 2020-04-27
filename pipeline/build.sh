@@ -3,6 +3,7 @@
 THISSCRIPT="$(basename "$0")"
 BASE_PATH="$(dirname "$(readlink -f "$0")")"
 BASE_DIR="$(basename "$BASE_PATH")"
+ACCOUNT_FILE="${BASE_PATH}/AWSACCOUNT"
 ERROR_MESSAGE=""
 USERLIST=()
 SYSTEMLIST=()
@@ -42,7 +43,8 @@ push() {
     echo "Pushing $localimage image"
 
     if ! docker push "$tag"; then
-        if aws ecr get-login-password | docker login --username AWS --password-stdin "${AWS_ACCOUNT_NO}.dkr.ecr.us-east-2.amazonaws.com"; then
+        echo "INFO: Loging to AWS using profile '${AWS_PROFILE}'"
+        if aws ecr get-login-password --region us-east-2 --profile ${AWS_PROFILE} | docker login --username AWS --password-stdin "${AWS_ACCOUNT_NO}.dkr.ecr.us-east-2.amazonaws.com"; then
             if ! docker push "$tag"; then
                 ERROR_MESSAGE="${ERROR_MESSAGE}Error: Pushing $localimage image failed\n"
                 returnValue=2
@@ -83,14 +85,20 @@ processimage() {
 }
 
 setregistry() {
-    if [[ -f ${BASE_PATH}/ACCOUNTNO && -z $AWS_ACCOUNT_NO ]]; then
-        . "${BASE_PATH}/ACCOUNTNO"
-    fi
-    if [[ -n $AWS_ACCOUNT_NO ]]; then
-        export REGISTRY="${AWS_ACCOUNT_NO}.dkr.ecr.us-east-2.amazonaws.com/pipeline/${PIPELELINE_NAME}"
+    if [[ -f ${ACCOUNT_FILE} ]]; then
+        . "${ACCOUNT_FILE}"
+        if [[ -n $AWS_ACCOUNT_NO ]]; then
+            export REGISTRY="${AWS_ACCOUNT_NO}.dkr.ecr.us-east-2.amazonaws.com/pipeline/${PIPELELINE_NAME}"
+        else
+            echo "Error: AWS Account Number not provided" >&2
+            exit 2
+        fi
+        if [[ -z $AWS_PROFILE ]]; then
+            echo "Error: AWS profile not provided" >&2
+            exit 2
+        fi
     else
-        echo "Error: AWS Account Number not provided" >&2
-        exit 2
+        echo "Error: file ${ACCOUNT_FILE} doesn't exists"
     fi
 }
 
@@ -126,11 +134,13 @@ displayhelp() {
     cat <<-EOF
     Usage: $THISSCRIPT [options] image1 image2 image3..
 
+    ${ACCOUNT_FILE} file is required with two environment variables
+    export AWS_ACCOUNT_NO="123456789"
+    export AWS_PROFILE="xxxx"
+
     Options:
     --help                  : This output.
-    --pipeline              : Name of the pipeline or project (Required)
-    --account               : AWS Account number to build and push docker images
-                              (Required if ${BASE_PATH}/ACCOUNTNO file doesn't exist)
+    --pipeline name         : Name of the pipeline or project (Required)
     --push                  : Push image to registry after build (optional)
 EOF
     exit 0
@@ -182,11 +192,6 @@ getUserInput() {
         "--help")
             displayhelp
             ;;
-        "--account")
-            shift
-            AWS_ACCOUNT_NO="$1"
-            shift
-            ;;
         "--pipeline")
             shift
             PIPELELINE_NAME="$1"
@@ -197,7 +202,11 @@ getUserInput() {
             PUSH="push"
             ;;
         *)
-            USERLIST=("$1" "${USERLIST[@]}")
+            if [[ "${1:0:1}" == - ]]; then
+                echo "WARNING: Invalid iamge name '$1'"
+            else
+                USERLIST=("$1" "${USERLIST[@]}")
+            fi
             shift
             ;;
         esac

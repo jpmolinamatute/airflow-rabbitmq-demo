@@ -5,4 +5,4 @@ config
 known_hosts
 **/Environment
 **/__pycache__/
-pipeline/ACCOUNTNO
+pipeline/AWSACCOUNT

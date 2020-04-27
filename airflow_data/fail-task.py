@@ -4,7 +4,7 @@ import time
 from airflow import DAG
 from airflow.utils.dates import days_ago
 from airflow.operators.python_operator import PythonOperator
-from dronelogs.default_values import DEFAULT_VALUES
+from pipeline.dronelogs.default_values import DEFAULT_VALUES
 
 
 def my_fail_task():

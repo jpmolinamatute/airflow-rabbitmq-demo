@@ -3,7 +3,7 @@ import json
 from airflow import DAG
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from airflow.utils.dates import days_ago
-from dronelogs.default_values import DEFAULT_VALUES
+from pipeline.dronelogs.default_values import DEFAULT_VALUES
 
 
 PIPILE_NAME = "testjimja"

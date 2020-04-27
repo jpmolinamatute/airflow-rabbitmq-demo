@@ -7,7 +7,7 @@ from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOpera
 from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
 from airflow.utils.helpers import chain
-from dronelogs.default_values import DEFAULT_VALUES
+from pipeline.dronelogs.default_values import DEFAULT_VALUES
 
 PIPILE_NAME = "airflow-test"
 DRONE_LOG_DAG = DAG(
